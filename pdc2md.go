@@ -25,7 +25,7 @@ func md(n Notebook) string {
    for _,c := range n.Worksheets[0].Cells {
 	  switch c.CellType {
          case "heading":
-            val = val + fmt.Sprintf("%s %s\n\n", strings.Repeat("#",c.Level), c.Source[0])	
+            val = val + fmt.Sprintf("%s %s\n\n", strings.Repeat("#",c.Level + offset), c.Source[0])	
          case "markdown":
 	        for _,s := range c.Source {
 		       val = val + s
@@ -44,18 +44,52 @@ func md(n Notebook) string {
 }
 
 
+
+
 func main() {
 	
-   // Read the raw byte steram from the file
-   ipynb, err := ioutil.ReadFile("test.ipynb")
-   if err != nil {
-      panic(err)
+   BASE_PATH := "/Users/odewahn/Desktop/python-data-cookbook/notebooks"
+   OUTPUT_PATH := "/Users/odewahn/Desktop/pdc-generated"
+   base_dirs, _ := ioutil.ReadDir(BASE_PATH)
+ 
+   for _,d := range base_dirs {
+	  // pull all directories that have a "-" in the name
+	  dir_name := strings.Split(d.Name(),"-")
+	  if (d.IsDir() && len(dir_name) > 1) {
+         chapter_fn := d.Name() + ".md"  // Root filename we're going to glob together
+         chapter_title := "# " + strings.Join(dir_name[1:len(dir_name)], " ") + "\n\n"
+         chapter_contents := chapter_title        
+        
+         // Process ipynb files in the directory and convert them into sections in the chapter
+         sections, _ := ioutil.ReadDir(BASE_PATH + "/" + d.Name())
+         for _,f := range sections {
+	        test_fn := strings.Split(f.Name(),".")
+            if (test_fn[len(test_fn)-1] == "ipynb") {
+	           section_fn := BASE_PATH + "/" + d.Name() + "/" + f.Name()
+	
+			   // Grab the contents of the section
+			   ipynb, err := ioutil.ReadFile(section_fn)
+			   if err != nil {
+			      panic(err)
+			   }
+			
+			   // unmarshall the json data into a notebook structure
+			   var notebook Notebook
+			   err = json.Unmarshal(ipynb, &notebook)
+			
+			   // append the contents to the chapter output
+	           chapter_contents = chapter_contents + md(notebook) + "\n"      
+            }
+         }
+         err := ioutil.WriteFile(OUTPUT_PATH + "/" + chapter_fn, []byte(chapter_contents), 0644)
+	     if err != nil {
+	        panic(err)
+	     }
+      }
    }
+	
 
-   var notebook Notebook
 
-   err = json.Unmarshal(ipynb, &notebook)
 
-   fmt.Println(md(notebook))
 
 }
