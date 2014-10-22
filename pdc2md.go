@@ -25,14 +25,15 @@ func md(n Notebook) string {
    for _,c := range n.Worksheets[0].Cells {
 	  switch c.CellType {
          case "heading":
-            val = val + fmt.Sprintf("%s %s\n\n", strings.Repeat("#",c.Level + offset), c.Source[0])	
+            val = val + fmt.Sprintf("\n%s %s\n\n", strings.Repeat("#",c.Level + 1), c.Source[0])	
          case "markdown":
+	        val = val + "\n"
 	        for _,s := range c.Source {
 		       val = val + s
 	        }
 	        val = val + "\n"
         case "code":
-	        val = val + "\n```\n"
+	        val = val + "\n\n``` python\n"
 	        for _,s := range c.Input {
 		       val = val + s
 	        }
