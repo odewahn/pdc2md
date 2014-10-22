@@ -4,6 +4,7 @@ import (
    "fmt"
    "io/ioutil"
    "encoding/json"
+   "strings"
 )
 
 
@@ -19,6 +20,29 @@ type Notebook struct {
 }
 
 
+func md(n Notebook) string {
+   val := ""
+   for _,c := range n.Worksheets[0].Cells {
+	  switch c.CellType {
+         case "heading":
+            val = val + fmt.Sprintf("%s %s\n\n", strings.Repeat("#",c.Level), c.Source[0])	
+         case "markdown":
+	        for _,s := range c.Source {
+		       val = val + s
+	        }
+	        val = val + "\n"
+        case "code":
+	        val = val + "\n```\n"
+	        for _,s := range c.Input {
+		       val = val + s
+	        }
+	        val = val + "\n```\n\n"
+	  }
+
+   }
+   return val	
+}
+
 
 func main() {
 	
@@ -32,12 +56,6 @@ func main() {
 
    err = json.Unmarshal(ipynb, &notebook)
 
-   for _,v := range notebook.Worksheets[0].Cells {
-	  if len(v.Source) > 0 {
-         fmt.Println(v.Source[0])	
-         fmt.Println("\n***\n")
-      }
-   }
- 
+   fmt.Println(md(notebook))
 
 }
