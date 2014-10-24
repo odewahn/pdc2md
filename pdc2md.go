@@ -113,7 +113,7 @@ func main() {
 	
 	
 	var inPtr = flag.String("in", "./notebooks", "the input directory; this should be to top level directory of the repo")
-	var outPtr = flag.String("out", "./markdown", "the output directory; by default, it's ./markdown, but you can override that")
+	var outPtr = flag.String("out", "./", "the output directory; by default, it's in the root")
 	
 	flag.Parse()
 	
