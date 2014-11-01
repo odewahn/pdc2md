@@ -48,12 +48,12 @@ func md(n Notebook) string {
 }
 
 
-func convert(input_path, output_path string) {
+func convert(input_path, output_path, delimiter string) {
    base_dirs, _ := ioutil.ReadDir(input_path)
 
    for _,d := range base_dirs {
 	  // pull all directories that have a "-" in the name
-	  dir_name := strings.Split(d.Name(),"-")
+	  dir_name := strings.Split(d.Name(), delimiter)
 	  if (d.IsDir() && len(dir_name) > 1) {
          chapter_fn := d.Name() + ".md"  // Root filename we're going to glob together
          fmt.Printf("Creating file %s\n", chapter_fn)
@@ -113,8 +113,9 @@ func main() {
 	
 	
 	var inPtr = flag.String("in", "./notebooks", "the input directory; this should be to top level directory of the repo")
-	var outPtr = flag.String("out", "./", "the output directory; by default, it's in the root")
-	
+	var outPtr = flag.String("out", "./", "The output directory; by default, it's in the root")
+    var delimiter = flag.String("d","-", "Delimiter used in directory filenames.  It's `-` by default")
+
 	flag.Parse()
 	
 	
@@ -124,14 +125,8 @@ func main() {
 	
 	fmt.Printf("Converting files in %s and exporting them to %s\n", inDir, outDir)
 	
-    convert(inDir, outDir)
+    convert(inDir, outDir, *delimiter)
 	
-
-
-	
-	
-//   BASE_PATH := "/Users/odewahn/Desktop/python-data-cookbook/notebooks"
-//   OUTPUT_PATH := "/Users/odewahn/Desktop/pdc-generated"
 
 
 }
